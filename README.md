@@ -4,31 +4,21 @@ Religion & allergy-aware menu scanner for tourists in Japan. Photograph a Japane
 
 ## Features
 
-- **Multi-profile scanning**: Halal, Kosher, Hindu Vegetarian, Hindu Non-Veg (no beef), Jain, Vegan, and common allergens (egg, dairy, shellfish, peanut, gluten)
-- **Real reasoning**: LLM-powered analysis that understands Japanese cuisine conventions, not just keyword matching
+- **Multi-profile scanning**: Halal, Kosher, Hindu Vegetarian, Hindu Non-Veg (no beef), Jain, Vegan, and common allergens
+- **Real reasoning**: LLM-powered analysis that understands Japanese cuisine conventions
 - **Instant re-scoring**: Toggle between profiles on the same scanned menu to see different verdicts
-- **Staff questions**: For uncertain dishes, generates Japanese questions you can show restaurant staff
+- **Staff questions**: Generates Japanese questions with text-to-speech for restaurant staff
 
-## Setup
-
-### Environment Variables
-
-Create a `.env` file in the server directory:
-
-```
-QWEN_API_KEY=
-QWEN_API_URL=https://home.qwencloud.com/api-keys
-QWEN_MODEL=qwen-vl-max
-PORT=3001
-```
-
-### Development
+## Local Development
 
 ```bash
 # Install dependencies
-npm install
 cd client && npm install && cd ..
 cd server && npm install && cd ..
+
+# Configure API key
+cp server/.env.example server/.env
+# Edit server/.env and add your QWEN_API_KEY
 
 # Run both client and server
 npm run dev
@@ -37,18 +27,53 @@ npm run dev
 Client: http://localhost:5173
 Server: http://localhost:3001
 
-### Deploy to Vercel
+## Deploy to Vercel
+
+### 1. Install Vercel CLI
 
 ```bash
 npm i -g vercel
+```
+
+### 2. Build the client
+
+```bash
+cd client && npm run build && cd ..
+```
+
+### 3. Deploy
+
+```bash
 vercel
 ```
 
-Set the `QWEN_API_KEY` environment variable in your Vercel project settings.
+Follow the prompts:
+- **Set up and deploy?** Yes
+- **Which scope?** Your account
+- **Link to existing project?** No
+- **Project name?** shinjitsu-menu (or your choice)
+- **In which directory is your code?** `.`
+- **Override settings?** No
+
+### 4. Set Environment Variables
+
+Go to your project on [vercel.com](https://vercel.com) → Settings → Environment Variables, then add:
+
+| Variable | Value |
+|---|---|
+| `QWEN_API_KEY` | Your DashScope API key |
+| `QWEN_API_URL` | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| `QWEN_MODEL` | `qwen-vl-max` |
+
+### 5. Redeploy
+
+```bash
+vercel --prod
+```
 
 ## Architecture
 
 - **Client**: Vite + React, mobile-first single page app
 - **Server**: Express API (local) / Vercel serverless functions (deployed)
 - **Vision Model**: Qwen VL (qwen-vl-max) via DashScope API
-- **Prompt Engineering**: Detailed system prompt with Japanese hidden ingredient cheatsheet and per-profile reasoning rules
+- **Prompts**: Japanese hidden ingredient cheatsheet + per-profile reasoning rules
