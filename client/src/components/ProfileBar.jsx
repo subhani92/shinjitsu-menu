@@ -18,7 +18,7 @@ const PROFILES = [
 export default function ProfileBar({ selectedProfiles, onToggle, compact }) {
   return (
     <div className={`profile-bar ${compact ? 'profile-bar--compact' : ''}`}>
-      <div className="profile-bar__label">Dietary profiles</div>
+      {!compact && <div className="profile-bar__label">Dietary Profiles</div>}
       <div className="profile-bar__toggles">
         {PROFILES.map((profile) => {
           const isSelected = selectedProfiles.includes(profile.id);
@@ -27,8 +27,6 @@ export default function ProfileBar({ selectedProfiles, onToggle, compact }) {
               key={profile.id}
               className={`profile-bar__toggle ${isSelected ? 'profile-bar__toggle--active' : ''}`}
               onClick={() => onToggle(profile.id)}
-              aria-pressed={isSelected}
-              title={profile.label}
             >
               <span className="profile-bar__icon">{profile.icon}</span>
               {!compact && <span className="profile-bar__text">{profile.label}</span>}

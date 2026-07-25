@@ -4,36 +4,36 @@
   padding: 0.75rem 1rem;
 }
 
-.profile-bar--compact {
-  padding: 0.5rem 0.75rem;
-}
+.profile-bar--compact { padding: 0.5rem 0.75rem; }
 
 .profile-bar__label {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--color-text-secondary);
   margin-bottom: 0.5rem;
 }
 
+.profile-bar--compact .profile-bar__label { display: none; }
+
 .profile-bar__toggles {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .profile-bar__toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.4rem 0.65rem;
+  padding: 0.35rem 0.6rem;
   border: 1.5px solid var(--color-border);
   border-radius: 20px;
   background: var(--color-bg);
   color: var(--color-text-secondary);
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -51,24 +51,10 @@
   color: white;
 }
 
-.profile-bar__icon {
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.profile-bar__text {
-  line-height: 1;
-}
-
-.profile-bar--compact .profile-bar__label {
-  display: none;
-}
-
-.profile-bar--compact .profile-bar__toggles {
-  gap: 0.3rem;
-}
+.profile-bar__icon { font-size: 0.9rem; line-height: 1; }
+.profile-bar__text { line-height: 1; }
 
 .profile-bar--compact .profile-bar__toggle {
-  padding: 0.35rem 0.55rem;
-  font-size: 0.72rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.68rem;
 }

@@ -14,6 +14,7 @@ export default function App() {
   const [imageData, setImageData] = useState(null);
   const [processingTime, setProcessingTime] = useState(null);
   const [scannedProfiles, setScannedProfiles] = useState(null);
+  const [scanStep, setScanStep] = useState('');
 
   const toggleProfile = useCallback((profileId) => {
     setSelectedProfiles((prev) => {
@@ -34,6 +35,13 @@ export default function App() {
     setError(null);
     setImageData(imageInfo);
     setProcessingTime(null);
+
+    const steps = ['Extracting Kanji & Hiragana dish names...', 'Inferring hidden ingredients (dashi, mirin, lard)...', 'Cross-checking against ' + selectedProfiles.join(', ') + ' rules...'];
+    let stepIdx = 0;
+    const stepInterval = setInterval(() => {
+      stepIdx = Math.min(stepIdx + 1, steps.length - 1);
+      setScanStep(steps[stepIdx]);
+    }, 2000);
 
     try {
       const response = await fetch(`${API_BASE}/api/scan-menu`, {
@@ -58,6 +66,7 @@ export default function App() {
       setError(err.message || 'Failed to scan menu. Please try again.');
       console.error('Scan error:', err);
     } finally {
+      clearInterval(stepInterval);
       setLoading(false);
     }
   }, [selectedProfiles]);
@@ -95,21 +104,20 @@ export default function App() {
         {!dishes && !loading && (
           <div className="app__intro">
             <p>Select your dietary profiles above, then photograph a Japanese restaurant menu below.</p>
-            <p className="app__intro-hint">
-              The scanner will analyze each dish and tell you if it's safe based on your selected restrictions.
-            </p>
+            <p className="app__intro-hint">The scanner will analyze each dish and tell you if it's safe.</p>
           </div>
         )}
 
-        <CameraUpload
-          onScanComplete={scanMenu}
-          isLoading={loading}
-        />
+        <CameraUpload onScanComplete={scanMenu} isLoading={loading} />
 
         {loading && (
           <div className="app__loading">
-            <div className="loading-bar" />
-            <p>Analyzing menu against {selectedProfiles.join(', ')} rules...</p>
+            <div className="app__loading-spinner" />
+            <h3>Scanning Japanese Menu...</h3>
+            <p className="app__loading-step">{scanStep || 'Extracting Kanji & Hiragana dish names...'}</p>
+            <p className="app__loading-hint">
+              Inferring hidden dashi, mirin, pork lard, and soy sauce brewing agents using Japanese culinary knowledge.
+            </p>
           </div>
         )}
 
@@ -125,56 +133,38 @@ export default function App() {
             <div className="app__results-header">
               <h2>Results</h2>
               <div className="app__results-meta">
-                {processingTime && (
-                  <span className="app__processing-time">{processingTime}ms</span>
-                )}
-                {scannedProfiles && (
-                  <span className="app__profiles-used">
-                    Profiles: {scannedProfiles.join(', ')}
-                  </span>
-                )}
+                {processingTime && <span>{processingTime}ms</span>}
+                {scannedProfiles && <span>Profiles: {scannedProfiles.join(', ')}</span>}
               </div>
             </div>
 
             <div className="app__summary">
-              <SummaryBadge
-                label="Safe"
-                count={dishes.filter((d) => d.verdict === 'SAFE').length}
-                color="var(--color-safe)"
-              />
-              <SummaryBadge
-                label="Unsafe"
-                count={dishes.filter((d) => d.verdict === 'LIKELY_UNSAFE').length}
-                color="var(--color-unsafe)"
-              />
-              <SummaryBadge
-                label="Uncertain"
-                count={dishes.filter((d) => d.verdict === 'UNCERTAIN').length}
-                color="var(--color-uncertain)"
-              />
+              <div className="app__summary-badge app__summary-badge--safe">
+                <span className="app__summary-count" style={{ color: 'var(--color-safe)' }}>{dishes.filter((d) => d.verdict === 'SAFE').length}</span>
+                <span className="app__summary-label">Safe</span>
+              </div>
+              <div className="app__summary-badge app__summary-badge--unsafe">
+                <span className="app__summary-count" style={{ color: 'var(--color-unsafe)' }}>{dishes.filter((d) => d.verdict === 'LIKELY_UNSAFE').length}</span>
+                <span className="app__summary-label">Unsafe</span>
+              </div>
+              <div className="app__summary-badge app__summary-badge--uncertain">
+                <span className="app__summary-count" style={{ color: 'var(--color-uncertain)' }}>{dishes.filter((d) => d.verdict === 'UNCERTAIN').length}</span>
+                <span className="app__summary-label">Uncertain</span>
+              </div>
             </div>
 
             <div className="app__dish-list">
               {dishes.map((dish, i) => (
-                <DishCard key={i} dish={dish} />
+                <DishCard key={i} dish={dish} selectedProfiles={selectedProfiles} />
               ))}
             </div>
 
             <div className="app__disclaimer">
-              <p>⚠ This tool uses AI inference based on dish names. When in doubt, always ask the restaurant staff. For serious allergies, carry an allergy translation card.</p>
+              <p>This tool uses AI inference based on dish names. When in doubt, always ask the restaurant staff. For serious allergies, carry an allergy translation card.</p>
             </div>
           </section>
         )}
       </main>
-    </div>
-  );
-}
-
-function SummaryBadge({ label, count, color }) {
-  return (
-    <div className="app__summary-badge" style={{ borderColor: color }}>
-      <span className="app__summary-count" style={{ color }}>{count}</span>
-      <span className="app__summary-label">{label}</span>
     </div>
   );
 }
